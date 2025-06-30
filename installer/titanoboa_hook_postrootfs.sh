@@ -281,3 +281,10 @@ SCRIPTEOF
 chmod +x /usr/bin/bootloader_restore.sh
 
 ###############################
+
+# Swap kernel with vanilla and rebuild initramfs
+dnf -yq remove kernel
+dnf --disable-plugin=versionlock install -yq kernel
+INSTALLED_KERNEL=$(rpm -q kernel-core --queryformat "%{evr}.%{arch}" | tail -n 1)
+dracut --zstd --reproducible --no-hostonly --kver "$INSTALLED_KERNEL" --add "dmsquash-live dmsquash-live-autooverlay" |&
+    grep -v -e "Operation not supported"
