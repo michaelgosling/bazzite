@@ -5,7 +5,6 @@ on:
   pull_request:
     branches:
       - testing
-      - unstable
     paths-ignore:
       - "**.md"
       - "**.txt"
@@ -19,7 +18,6 @@ on:
   push:
     branches:
       - testing
-      - unstable
     paths-ignore:
       - "**.md"
       - "**.txt"
@@ -61,10 +59,10 @@ jobs:
       fail-fast: false
       matrix:
         base_image_flavor: [main]
-        base_name: [bazzite, bazzite-deck, bazzite-nvidia, bazzite-deck-nvidia]
-        base_image_name: [kinoite, silverblue]
-        target_image_flavor: [main, asus, surface]
-        target_nvidia_flavor: [nvidia, nvidia-open]
+        base_name: [bazzite]
+        base_image_name: [kinoite]
+        target_image_flavor: [main]
+        target_nvidia_flavor: [nvidia-open]
         fedora_version: [42]
         include:
           - fedora_version: 42
@@ -163,30 +161,30 @@ jobs:
           pubkey: https://raw.githubusercontent.com/ublue-os/akmods/main/cosign.pub
           registry: ${{ env.PULL_IMAGE_REGISTRY }}
 
-      - name: Verify akmods-nvidia image
-        uses: EyeCantCU/cosign-action/verify@58722a084c82190b57863002d494c91eabbe9e79 # v0.3.0
-        with:
-          containers: akmods-${{ matrix.target_nvidia_flavor }}:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
-          pubkey: https://raw.githubusercontent.com/ublue-os/akmods/main/cosign.pub
-          registry: ${{ env.PULL_IMAGE_REGISTRY }}
+      # - name: Verify akmods-nvidia image
+      #   uses: EyeCantCU/cosign-action/verify@58722a084c82190b57863002d494c91eabbe9e79 # v0.3.0
+      #   with:
+      #     containers: akmods-${{ matrix.target_nvidia_flavor }}:${{ matrix.kernel_flavor}}-${{ matrix.fedora_version }}-${{ matrix.kernel_version }}
+      #     pubkey: https://raw.githubusercontent.com/ublue-os/akmods/main/cosign.pub
+      #     registry: ${{ env.PULL_IMAGE_REGISTRY }}
 
       # Checkout push-to-registry action GitHub repository
       - name: Checkout Push to Registry action
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       # Prepare offline documentation
-      - name: Download offline docs
-        id: download_offline_docs
-        continue-on-error: true
-        env:
-          docs_repo: bazzite-org/docs.bazzite.gg
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          DOCS_DIR="${{ github.workspace }}/system_files/desktop/shared/usr/share/ublue-os/docs/html"
-          mkdir -p $DOCS_DIR
-          cd $(mktemp -d)
-          gh run download --repo=$docs_repo -n github-pages
-          tar -xC "$DOCS_DIR" -f artifact.tar
+      # - name: Download offline docs
+      #   id: download_offline_docs
+      #   continue-on-error: true
+      #   env:
+      #     docs_repo: bazzite-org/docs.bazzite.gg
+      #     GH_TOKEN: ${{ github.token }}
+      #   run: |
+      #     DOCS_DIR="${{ github.workspace }}/system_files/desktop/shared/usr/share/ublue-os/docs/html"
+      #     mkdir -p $DOCS_DIR
+      #     cd $(mktemp -d)
+      #     gh run download --repo=$docs_repo -n github-pages
+      #     tar -xC "$DOCS_DIR" -f artifact.tar
 
       - name: Check just syntax
         uses: ublue-os/just-action@bda593098a84a84973b002b4377709166a68be52 # v2
